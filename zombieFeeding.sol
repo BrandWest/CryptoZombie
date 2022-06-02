@@ -29,7 +29,16 @@ contract ZombieFeeding is ZombieFactory {
   //address ckAddress = 0x06012c8cf97BEaD5deAe237070F9587f8E7A266d;
   // setting the contract to "kittyContract" via the eth address
   //KittyInterface kittyContract = KittyInterface(ckAddress);
-
+  
+  // This function creates the cooldown so the zombie can not eat multiple times
+  function _triggerCooldown(Zombie storage _zombie) internal {
+    _zombie.readyTime = uint32(now + cooldownTime);
+  }
+  // This function returns if the zombie is ready to eat or not.
+  function _isReady(Zombie storage _zombie) internal view returns (bool) {
+      return (_zombie.readyTime <= now);
+  }
+  
   function feedAndMultiply(uint _zombieId, uint _targetDna, string memory _species) public {
     require(msg.sender == zombieToOwner[_zombieId]);
     Zombie storage myZombie = zombies[_zombieId];
