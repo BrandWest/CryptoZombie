@@ -42,6 +42,8 @@ contract ZombieFeeding is ZombieFactory {
   function feedAndMultiply(uint _zombieId, uint _targetDna, string memory _species) public {
     require(msg.sender == zombieToOwner[_zombieId]);
     Zombie storage myZombie = zombies[_zombieId];
+    // Check to see if the zombie is ready to feed again by using REQUIRE keyword
+    require(_isReady(myZombie));
     _targetDna = _targetDna % dnaModulus;
     uint newDna = (myZombie.dna + _targetDna) / 2;
   
@@ -50,6 +52,8 @@ contract ZombieFeeding is ZombieFactory {
       newDna = newDna - newDna % 100 + 99;
     }
     _createZombie("NoName", newDna);
+    // Once the zombie is used, trigger cooldown is called to set the cooldown on the zombie.
+    _triggerCooldown(myZombie);
   }
 
   function feedOnKitty(uint _zombieId, uint _kittyId) public {
