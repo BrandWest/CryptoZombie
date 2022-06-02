@@ -1,18 +1,31 @@
 pragma solidity >=0.5.0 <0.6.0;
 
 // Sets the contract and is required for any new contract.
-contract ZombieFactory {
+// Inherits from the Ownable contract - making it to provide specific ownership to specific areas of the DApps
+contract ZombieFactory is Ownable {
     //used as a trigger
     event NewZombie(uint zombieId, string name, uint dna);
     
     //Unsigned integers and variables
     uint dnaDigits = 16;
     uint dnaModulus = 10 ** dnaDigits;
-
+    uint cooldownTime = 1 days; 
+    
+    /**
+        By adding like variables to structs (string 1; string 2; unit 1, unit 2;, uint32 1; unit32 2;) will allow less gas to be used.
+        This can be seen in the struct Zombie where level and readyTime are created one after another. 
+        Keep in mind that in the case of "Unix Time" one day a 32 bit integer will overflow.
+        But if a limit exists like level 1-1000, then it will never hit that integer.
+        
+        This is done to save gas from executing the contract on the eth blockchain
+    **/
+    
     //Struct containing a string and uint
     struct Zombie {
         string name;
         uint dna;
+        uint32 level;
+        uint32 readyTime;
     }
    // Creating a publicy accessible array of type Zombie
    Zombie[] public zombies;
@@ -24,7 +37,7 @@ contract ZombieFactory {
     // Function declaration - requires the type, storage (memory, sotrage), and if the fucntion is accessible to the blockchain (private, public, interal, external)
     function _createZombie(string memory _name, uint _dna) private {
         // pushing the zombie onto the stack and tracking the IDs 
-        uint id = zombies.push(Zombie(_name, _dna)) - 1;
+        uint id = zombies.push(Zombie(_name, _dna,1, uint32(now + cooldownTime))) - 1;
         //setting the zombie owner to the eth address msg.sender
         zombieToOwner[id] = msg.sender;
         // adding a coutner to the eth adress for the number of the zombies
