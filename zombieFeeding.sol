@@ -20,11 +20,15 @@ contract KittyInterface {
 
 // my contract inheriting via IS keyword from zombieFactory
 contract ZombieFeeding is ZombieFactory {
-
+  KittyInterface kittyContract;
+  //using onlyOwner modifier to make it so that only the owner can modify the address of the contract
+  function setKittyContractAddress(address _address) external onlyOwner {
+    kittyContract = KittyInterface(_address);
+  }
   // The address of the contract we want to call
-  address ckAddress = 0x06012c8cf97BEaD5deAe237070F9587f8E7A266d;
+  //address ckAddress = 0x06012c8cf97BEaD5deAe237070F9587f8E7A266d;
   // setting the contract to "kittyContract" via the eth address
-  KittyInterface kittyContract = KittyInterface(ckAddress);
+  //KittyInterface kittyContract = KittyInterface(ckAddress);
 
   function feedAndMultiply(uint _zombieId, uint _targetDna, string memory _species) public {
     require(msg.sender == zombieToOwner[_zombieId]);
