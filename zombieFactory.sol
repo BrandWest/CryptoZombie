@@ -1,10 +1,18 @@
 pragma solidity >=0.5.0 <0.6.0;
 
+import "./ownable.sol";
+import "./safemath.sol";
+
 // Sets the contract and is required for any new contract.
 // Inherits from the Ownable contract - making it to provide specific ownership to specific areas of the DApps
 contract ZombieFactory is Ownable {
     //used as a trigger
     event NewZombie(uint zombieId, string name, uint dna);
+    
+    // Calling safemath on uint 256, 32, 16
+    using SafeMath for uint256;
+    using SafeMath32 for uint32;
+    using SafeMath16 for uint16;
     
     //Unsigned integers and variables
     uint dnaDigits = 16;
@@ -26,6 +34,8 @@ contract ZombieFactory is Ownable {
         uint dna;
         uint32 level;
         uint32 readyTime;
+        uint16 winCount;
+        uint16 lossCount;
     }
    // Creating a publicy accessible array of type Zombie
    Zombie[] public zombies;
@@ -41,12 +51,12 @@ contract ZombieFactory is Ownable {
         //setting the zombie owner to the eth address msg.sender
         zombieToOwner[id] = msg.sender;
         // adding a coutner to the eth adress for the number of the zombies
-        ownerZombieCount[msg.sender]++;
+        ownerZombieCount[msg.sender] = ownerZombieCount[msg.sender].add(1);
         // Look this up again
         emit NewZombie(id, _name, _dna);
     }
     
-    // Functino decalres its reutnring a value
+    // Function decalres its reutnring a value
     function _generateRandomDna(string memory _str) private view returns (uint) {
         uint rand = uint(keccak256(abi.encodePacked(_str)));
         return rand % dnaModulus;
@@ -58,5 +68,4 @@ contract ZombieFactory is Ownable {
         uint randDna = _generateRandomDna(_name);
         _createZombie(_name, randDna);
     }
-
-}
+}//End of Contract  
